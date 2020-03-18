@@ -1,7 +1,13 @@
 plugins {
     id 'java'
+    id 'idea'
 }
-
+idea{
+    module {
+        downloadJavadoc = true // defaults to false
+        downloadSources = true
+    }
+}
 group 'dba'
 version '1.0-SNAPSHOT'
 
@@ -13,4 +19,11 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.12'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+
 }

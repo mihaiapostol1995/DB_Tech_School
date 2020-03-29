@@ -35,21 +35,11 @@ public class Product {
                     try {
                         String string = field.getAnnotation(JsonField.class).name();
                         int length = field.getAnnotation(JsonField.class).lengthToTrimString();
-                        int actualLength = field.get(object).toString().length();
-                        if (length > actualLength) {
-                            if (!string.equals("")) {
-                                stringObjectMap.put(string, field.get(object));
-                            } else {
-                                stringObjectMap.put(field.getName(), field.get(object));
-                            }
-                        }
-                        else {
-                            if (!string.equals("")) {
-                                stringObjectMap.put(string, actualLength - length);
-                            } else {
-                                stringObjectMap.put(field.getName(), actualLength - length);
-                            }
-                        }
+                        Object o = field.get(object);
+                        int actualLength = o.toString().length();
+                        int min = Math.min(length, actualLength);
+
+                        checkForString(stringObjectMap, field, string, o.toString().substring(0, min));
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();
                     }
@@ -57,8 +47,9 @@ public class Product {
             }
         );
 
-        StringBuilder stringBuilder = new StringBuilder("{");
-        for (Map.Entry<String, Object> map: stringObjectMap.entrySet()){
+        StringBuilder stringBuilder = new StringBuilder("{ ");
+        Set<Map.Entry<String, Object>> entries = stringObjectMap.entrySet();
+        for (Map.Entry<String, Object> map: entries){
             stringBuilder.append("\"").append(map.getKey()).append("\":");
             if(map.getValue().getClass() != String.class) {
                 stringBuilder.append(map.getValue());
@@ -66,7 +57,16 @@ public class Product {
             else {
                 stringBuilder.append("\"").append(map.getValue()).append("\"");
             }
+            stringBuilder.append(" ");
         }
         return stringBuilder.append("}").toString();
+    }
+
+    private static void checkForString(Map<String, Object> stringObjectMap, Field field, String string, Object o) {
+        if (!string.equals("")) {
+            stringObjectMap.put(string, o);
+        } else {
+            stringObjectMap.put(field.getName(), o);
+        }
     }
 }
